@@ -1,0 +1,6 @@
+﻿cmake_minimum_required (VERSION 3.8)
+add_executable (1067 P3213_asurkis_1067.cxx)
+add_executable (1494 P3213_asurkis_1494.cxx)
+add_executable (1521 P3213_asurkis_1521.cxx)
+add_executable (1628 P3213_asurkis_1628.cxx)
+add_executable (1650 P3213_asurkis_1650.cxx)
