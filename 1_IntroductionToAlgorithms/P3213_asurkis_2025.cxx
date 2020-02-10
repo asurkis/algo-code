@@ -12,14 +12,12 @@ int main() {
     int team_size = participants_count / team_count;
     int increased_teams = participants_count % team_count;
 
-    int match_count = 0;
-    int prev_teams = 0;
+    int doubled_match_count = participants_count * participants_count;
     for (int j = 0; j < team_count; j++) {
       int current_team = team_size + (j < increased_teams ? 1 : 0);
-      match_count += current_team * prev_teams;
-      prev_teams += current_team;
+      doubled_match_count -= current_team * current_team;
     }
-    cout << match_count << endl;
+    cout << (doubled_match_count / 2) << endl;
   }
   return 0;
 }

@@ -56,22 +56,21 @@ int main() {
       count[A]++;
     }
 
-    while (count[D] > 0) {
-      cout << "BC+" << endl << "CD-" << endl;
-      count[D]--;
-      count[B]++;
-    }
-
-    while (count[E] > 0) {
-      cout << "AB+" << endl << "AE-" << endl;
-      count[E]--;
-      count[B]++;
-    }
-
     while (count[G] > 0) {
       cout << "BC+" << endl << "CG-" << endl;
       count[G]--;
       count[B]++;
+    }
+
+    for (int i = 0; i < 12; i++) {
+      Edge &e = edges[i];
+      while (count[e.v1] > 0 && count[e.v2] > 0) {
+        cout << names[e.v1] << names[e.v2] << '-' << endl;
+        count[e.v1]--;
+        count[e.v2]--;
+        n1--;
+        n2--;
+      }
     }
   }
 
