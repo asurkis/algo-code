@@ -1,13 +1,10 @@
 ﻿#include <algorithm>
-#include <utility>
+#include <iostream>
 #include <limits>
 #include <string>
+#include <utility>
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
-int main()
-{
-    return 0;
-}
+int main() { return 0; }
