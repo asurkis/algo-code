@@ -1,5 +1,4 @@
-﻿#include <algorithm>
-#include <iostream>
+﻿#include <iostream>
 
 using namespace std;
 
@@ -20,10 +19,31 @@ bool operator<(const Char &a, const Char &b) {
   return ord[a.val] < ord[b.val];
 }
 
+template <typename T> void quick_sort(T begin, T end) {
+  if (begin == end)
+    return;
+  T equal_left = begin;
+  T equal = begin;
+  T iter = begin;
+  for (++iter; iter != end; ++iter) {
+    if (!(*equal < *iter)) {
+      swap(*++equal, *iter);
+      if (*equal < *equal_left) {
+        swap(*equal, *equal_left);
+        ++equal_left;
+      }
+    }
+  }
+  quick_sort(begin, equal_left);
+  if (equal != end) {
+    quick_sort(++equal, end);
+  }
+}
+
 int main() {
-  for (int i = 0; i < 256; i++)
+  for (int i = 0; i < 256; ++i)
     ord[i] = -1;
-  for (int i = 0; chr[i] != '\0'; i++)
+  for (int i = 0; chr[i] != '\0'; ++i)
     ord[chr[i]] = i;
 
   int K;
@@ -33,16 +53,16 @@ int main() {
   while (last_col[n] != '\0') {
     chars[n].pos = n;
     chars[n].val = last_col[n];
-    n++;
+    ++n;
   }
 
-  if (n == 0)
+  if (!n)
     return 0;
 
-  sort(chars, chars + n);
+  quick_sort(chars, chars + n);
 
-  K--;
-  for (int i = 0; i < n; i++)
+  --K;
+  for (int i = 0; i < n; ++i)
     cout << last_col[K = chars[K].pos];
   cout << endl;
 
