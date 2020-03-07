@@ -9,65 +9,46 @@ struct Sign {
 
 bool operator<(const Sign &a, const Sign &b) { return a.count < b.count; }
 
-void merge_sort(Sign *src, Sign *dst, int size) {
-  if (size < 2)
-    return;
-  int m = size / 2;
-  merge_sort(dst, src, m);
-  merge_sort(dst + m, src + m, size - m);
-
-  for (int i = 0; i + i < size - m; i++)
-    swap(src[m + i], src[size - i - 1]);
-
-  int l = 0;
-  int r = size - 1;
-  for (int i = 0; i < size; i++)
-    dst[i] = src[src[l] < src[r] ? r-- : l++];
+int sift_down(Sign *arr, int size, int pos) {
+  while (true) {
+    int candidate = pos;
+    for (int i = 2 * pos + 1; i <= 2 * pos + 2; ++i)
+      if (i < size && arr[candidate] < arr[i])
+        candidate = i;
+    if (candidate == pos)
+      break;
+    swap(arr[pos], arr[candidate]);
+    pos = candidate;
+  }
+  return pos;
 }
 
 int k;
 Sign n[10000];
-Sign buf[10000];
 
 int main() {
   cin >> k;
-  int total = 0;
-  for (int i = 0; i < k; i++) {
+  for (int i = 0; i < k; ++i) {
     n[i].id = i + 1;
     cin >> n[i].count;
-    total += n[i].count;
-    buf[i] = n[i];
   }
 
-  merge_sort(buf, n, k);
+  for (int i = k / 2 - 1; i >= 0; --i)
+    sift_down(n, k, i);
 
-  int current = 0;
-  while (current < total) {
+  while (n[0].count > 0) {
     cout << n[0].id << ' ';
-    n[0].count--;
-    current++;
-    if (k == 1)
+    --n[0].count;
+    if (k <= 1)
       continue;
 
-    if (n[0].count + 1 == n[1].count) {
-      for (int i = 1; i < k; i++) {
-        if (n[0].count + 1 == n[i].count) {
-          cout << n[i].id << ' ';
-          n[i].count--;
-          current++;
-        }
-      }
-    } else if (n[1].count) {
-      cout << n[1].id << ' ';
-      n[1].count--;
-      current++;
-
-      int i = 1;
-      while (i + 1 < k && n[i].count < n[i + 1].count) {
-        swap(n[i], n[i + 1]);
-        i++;
-      }
-    }
+    int next_to_remove = n[1] < n[2] ? 2 : 1;
+    if (n[next_to_remove].count <= 0)
+      continue;
+    cout << n[next_to_remove].id << ' ';
+    --n[next_to_remove].count;
+    sift_down(n, k, next_to_remove);
+    sift_down(n, k, 0);
   }
   return 0;
 }
