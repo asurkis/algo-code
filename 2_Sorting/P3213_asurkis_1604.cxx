@@ -36,14 +36,14 @@ int main() {
   for (int i = k / 2 - 1; i >= 0; --i)
     sift_down(n, k, i);
 
-  while (n[0].count > 0) {
+  while (n[0].count) {
     cout << n[0].id << ' ';
     --n[0].count;
     if (k <= 1)
       continue;
 
     int next_to_remove = n[1] < n[2] ? 2 : 1;
-    if (n[next_to_remove].count <= 0)
+    if (!n[next_to_remove].count)
       continue;
     cout << n[next_to_remove].id << ' ';
     --n[next_to_remove].count;
