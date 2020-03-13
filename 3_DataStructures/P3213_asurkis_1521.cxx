@@ -1,13 +1,20 @@
-﻿#include <algorithm>
-#include <utility>
-#include <limits>
-#include <string>
+﻿#include <iostream>
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
-int main()
-{
-    return 0;
+int main() {
+  int N, K;
+  cin >> N >> K;
+  vector<size_t> order;
+  for (size_t i = 0; i < N; ++i)
+    order.push_back(i + 1);
+
+  size_t pos = 0;
+  for (size_t i = 0; i < N; ++i) {
+    pos = (pos + K - 1) % order.size();
+    // cout << order[pos] << ' ';
+    order.erase(begin(order) + pos);
+  }
+  return 0;
 }
