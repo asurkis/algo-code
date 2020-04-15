@@ -15,7 +15,7 @@ struct Node {
   }
 };
 
-void print(const shared_ptr<Node> n, int shift = 0) {
+void print(const shared_ptr<Node> &n, int shift = 0) {
   for (auto iter = begin(n->children); iter != end(n->children); ++iter) {
     for (int i = 0; i < shift; ++i)
       cout << ' ';

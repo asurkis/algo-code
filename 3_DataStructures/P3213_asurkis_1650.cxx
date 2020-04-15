@@ -8,12 +8,10 @@
 
 using namespace std;
 
-typedef long long Long;
-
 struct City {
   uint64_t wealth;
   uint64_t days_max;
-  size_t heap_pos;
+  int heap_pos;
 
   City() : wealth(0), days_max(0), heap_pos(0) {}
 };
@@ -44,10 +42,10 @@ shared_ptr<City> persist_city(const string &key) {
   return cities[key];
 }
 
-void sift_down(size_t pos) {
+void sift_down(int pos) {
   while (true) {
-    size_t candidate = pos;
-    for (size_t alt = 2 * pos + 1; alt <= 2 * pos + 2; ++alt)
+    int candidate = pos;
+    for (int alt = 2 * pos + 1; alt <= 2 * pos + 2; ++alt)
       if (alt < size(heap) && heap[candidate]->wealth < heap[alt]->wealth)
         candidate = alt;
     if (pos == candidate)
@@ -59,9 +57,9 @@ void sift_down(size_t pos) {
   }
 }
 
-void sift_up(size_t pos) {
+void sift_up(int pos) {
   while (pos > 0) {
-    size_t alt = (pos - 1) / 2;
+    int alt = (pos - 1) / 2;
     if (heap[alt]->wealth < heap[pos]->wealth) {
       swap(heap[alt], heap[pos]);
       heap[pos]->heap_pos = pos;
@@ -75,16 +73,16 @@ void sift_up(size_t pos) {
 
 void increment_days_max(uint64_t amount) {
   bool valid = !empty(cities);
-  for (size_t i = 1; i <= 2; ++i)
+  for (int i = 1; i <= 2; ++i)
     valid &= size(cities) <= i || heap[i]->wealth < heap[0]->wealth;
   if (valid)
     heap[0]->days_max += amount;
 }
 
 int main() {
-  size_t n;
+  int n;
   cin >> n;
-  for (size_t i = 0; i != n; ++i) {
+  for (int i = 0; i < n; ++i) {
     string billionaire_name, city_name;
     Billionaire new_billionaire;
     cin >> billionaire_name >> city_name >> new_billionaire.wealth;
@@ -94,13 +92,13 @@ int main() {
     billionaires[billionaire_name] = move(new_billionaire);
   }
 
-  for (size_t i = size(cities) / 2; ~i; --i)
+  for (int i = size(cities) / 2; ~i; --i)
     sift_down(i);
 
-  size_t m, k;
+  int m, k;
   cin >> m >> k;
   uint64_t prev_day = 0;
-  for (size_t i = 0; i != k; ++i) {
+  for (int i = 0; i < k; ++i) {
     uint64_t day;
     string billionaire_name, next_city_name;
     cin >> day >> billionaire_name >> next_city_name;
