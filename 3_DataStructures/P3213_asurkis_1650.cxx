@@ -34,7 +34,7 @@ bool comparator_for_heap(const shared_ptr<City> &a, const shared_ptr<City> &b) {
 shared_ptr<City> persist_city(const string &key) {
   if (!cities.count(key)) {
     auto new_city = make_shared<City>();
-    new_city->heap_pos = size(cities);
+    new_city->heap_pos = cities.size();
 
     cities[key] = new_city;
     heap.push_back(new_city);
@@ -46,7 +46,7 @@ void sift_down(int pos) {
   while (true) {
     int candidate = pos;
     for (int alt = 2 * pos + 1; alt <= 2 * pos + 2; ++alt)
-      if (alt < size(heap) && heap[candidate]->wealth < heap[alt]->wealth)
+      if (alt < heap.size() && heap[candidate]->wealth < heap[alt]->wealth)
         candidate = alt;
     if (pos == candidate)
       break;
@@ -72,9 +72,9 @@ void sift_up(int pos) {
 }
 
 void increment_days_max(uint64_t amount) {
-  bool valid = !empty(cities);
+  bool valid = !cities.empty();
   for (int i = 1; i <= 2; ++i)
-    valid &= size(cities) <= i || heap[i]->wealth < heap[0]->wealth;
+    valid &= cities.size() <= i || heap[i]->wealth < heap[0]->wealth;
   if (valid)
     heap[0]->days_max += amount;
 }
@@ -92,7 +92,7 @@ int main() {
     billionaires[billionaire_name] = move(new_billionaire);
   }
 
-  for (int i = size(cities) / 2; ~i; --i)
+  for (int i = cities.size() / 2; ~i; --i)
     sift_down(i);
 
   int m, k;

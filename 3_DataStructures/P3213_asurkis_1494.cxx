@@ -12,7 +12,7 @@ int main() {
   for (int i = 0; i < N; ++i) {
     int top;
     cin >> top;
-    if (empty(stack))
+    if (stack.empty())
       stack.push_back(ball++);
     if (stack.back() > top) {
       cout << "Cheater" << endl;

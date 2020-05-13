@@ -22,8 +22,8 @@ bool collapse(size_t pos) {
   n |= VISITED;
   if (!a)
     return false;
-  for (size_t i = 0; i < size(nodes); ++i) {
-    if (!connectivity[pos * size(nodes) + i])
+  for (size_t i = 0; i < nodes.size(); ++i) {
+    if (!connectivity[pos * nodes.size() + i])
       continue;
     nodes[i] &= ~a;
     if (!collapse(i))
