@@ -21,7 +21,6 @@ int64_t const INFINITY = 0x7FFFFFFF;
 int64_t transmission_time[10];
 vector<Node> nodes;
 vector<size_t> heap;
-vector<size_t> path;
 unordered_map<int64_t, size_t> node_by_number;
 
 void sift_up(size_t pos) {
@@ -136,6 +135,7 @@ int main() {
     }
   }
 
+  vector<size_t> path;
   path.push_back(nodes.size() - 1);
   while (nodes[path[path.size() - 1]].came_from != ~0)
     path.push_back(nodes[path[path.size() - 1]].came_from);
