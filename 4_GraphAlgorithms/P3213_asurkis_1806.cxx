@@ -1,105 +1,153 @@
-﻿#include <cstdint>
+﻿#include <algorithm>
+#include <cstdint>
 #include <iostream>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 using namespace std;
 
-struct Node {
-  int64_t number;
-  int64_t came_from;
-  int64_t min_time;
-  int64_t display_as;
+struct Edge {
+  size_t o;
+  int64_t w;
 };
 
-int64_t n;
-int64_t transmission_time[10];
-int64_t first, last;
-unordered_map<int64_t, Node> nodes;
-unordered_set<int64_t> queue;
+struct Node {
+  vector<Edge> edges;
+  size_t came_from;
+  int64_t min_time;
+};
 
-void check_edge(const Node &current_node, int64_t other_number,
-                int prefix_len) {
-  if (other_number == current_node.number)
-    return;
-  if (!nodes.count(other_number))
-    return;
-  Node &other_node = nodes[other_number];
-  int64_t time = current_node.min_time + transmission_time[9 - prefix_len];
-  if (time < other_node.min_time) {
-    other_node.min_time = time;
-    other_node.came_from = current_node.number;
-    if (!queue.count(other_number))
-      queue.insert(other_number);
+int64_t const INFINITY = 0x7FFFFFFF;
+int64_t transmission_time[10];
+vector<Node> nodes;
+vector<size_t> heap;
+vector<size_t> path;
+unordered_map<int64_t, size_t> node_by_number;
+
+void sift_up(size_t pos) {
+  while (pos != 0) {
+    size_t alt = (pos - 1) / 2;
+    if (heap[pos] < heap[alt]) {
+      swap(heap[pos], heap[alt]);
+      pos = alt;
+    } else {
+      break;
+    }
   }
 }
 
-int main() {
-  cin >> n;
-  for (int64_t i = 0; i < 10; ++i)
-    cin >> transmission_time[i];
+void sift_down(size_t pos) {
+  for (;;) {
+    size_t alt = pos;
+    if (2 * pos + 1 < heap.size() && heap[2 * pos + 1] < heap[alt])
+      alt = 2 * pos + 1;
+    if (2 * pos + 2 < heap.size() && heap[2 * pos + 2] < heap[alt])
+      alt = 2 * pos + 2;
+    if (alt == pos)
+      break;
+    swap(heap[pos], heap[alt]);
+    pos = alt;
+  }
+}
 
-  nodes.reserve(n);
-  for (int64_t i = 0; i < n; ++i) {
-    Node node;
-    cin >> node.number;
-    node.min_time = INT64_MAX;
-    node.came_from = -1;
-    node.display_as = i + 1;
-    if (i == 0) {
-      first = node.number;
-      node.min_time = 0;
-    }
-    if (i + 1 == n)
-      last = node.number;
-    nodes[node.number] = node;
+void check_edge(const pair<int64_t, size_t> &current, int64_t other_number,
+                int prefix_len) {
+  if (current.first == other_number)
+    return;
+  if (!node_by_number.count(other_number))
+    return;
+  nodes[current.second].edges.push_back(
+      {node_by_number[other_number], transmission_time[prefix_len]});
+}
+
+bool edge_comparator(const Edge &a, const Edge &b) {
+  if (a.o < b.o)
+    return true;
+  if (a.o > b.o)
+    return false;
+  if (a.w < b.w)
+    return true;
+  return false;
+}
+
+int main() {
+  size_t n;
+  cin >> n;
+  nodes.resize(n);
+  for (size_t i = 0; i < 10; ++i)
+    cin >> transmission_time[i];
+  for (size_t i = 0; i < n; ++i) {
+    int64_t number;
+    cin >> number;
+    node_by_number[number] = i;
+    nodes[i].min_time = INFINITY;
+    nodes[i].came_from = ~0;
   }
 
-  queue.insert(first);
-  while (!queue.empty()) {
-    auto min_iter = begin(queue);
-    // for (auto iter = begin(queue); iter != end(queue); ++iter)
-    //   if (nodes[*iter].min_time < nodes[*min_iter].min_time)
-    //     min_iter = iter;
-
-    int64_t current_number = *min_iter;
-    Node current_node = nodes[current_number];
-    queue.erase(min_iter);
-
-    for (int64_t i = 0, di = 1; i < 10; ++i, di *= 10) {
+  for (auto iter = begin(node_by_number); iter != end(node_by_number); ++iter) {
+    int64_t current_number = iter->first;
+    for (int64_t i = 0, mi = 1; i < 10; ++i, mi *= 10) {
       for (int64_t j = 0; j < 10; ++j) {
         int64_t other_number =
-            current_number + (j - current_number / di % 10) * di;
-        check_edge(current_node, other_number, i);
+            current_number + (j - current_number / mi % 10) * mi;
+        check_edge(*iter, other_number, 9 - i);
       }
-
-      for (int64_t j = 0, dj = 1; j < i; ++j, dj *= 10) {
+      for (int64_t j = 0, mj = 1; j < i; ++j, mj *= 10) {
         int64_t other_number =
             current_number +
-            (current_number / dj % 10 - current_number / di % 10) * di +
-            (current_number / di % 10 - current_number / dj % 10) * dj;
-        check_edge(current_node, other_number, i);
+            (current_number / mj % 10 - current_number / mi % 10) * mi +
+            (current_number / mi % 10 - current_number / mj % 10) * mj;
+        check_edge(*iter, other_number, 9 - i);
       }
     }
   }
 
-  vector<Node> path;
-  path.push_back(nodes[last]);
-  while (path[path.size() - 1].came_from != -1)
-    path.push_back(nodes[path[path.size() - 1].came_from]);
+  for (auto iter = begin(nodes); iter != end(nodes); ++iter) {
+    auto &edges = iter->edges;
+    sort(begin(edges), end(edges), edge_comparator);
+    for (size_t i = 0; i + 1 < edges.size();) {
+      if (edges[i].o == edges[i + 1].o) {
+        edges.erase(begin(edges) + (i + 1));
+      } else {
+        ++i;
+      }
+    }
+  }
+
+  nodes[0].min_time = 0;
+  heap.push_back(0);
+  while (!heap.empty()) {
+    size_t current = heap[0];
+    heap[0] = heap[heap.size() - 1];
+    heap.pop_back();
+    sift_down(0);
+
+    auto &current_node = nodes[current];
+    auto &edges = current_node.edges;
+    for (auto iter = begin(edges); iter != end(edges); ++iter) {
+      auto &other = nodes[iter->o];
+      int64_t time = current_node.min_time + iter->w;
+      if (time < other.min_time) {
+        other.min_time = time;
+        other.came_from = current;
+        heap.push_back(iter->o);
+        sift_up(heap.size() - 1);
+      }
+    }
+  }
+
+  path.push_back(nodes.size() - 1);
+  while (nodes[path[path.size() - 1]].came_from != ~0)
+    path.push_back(nodes[path[path.size() - 1]].came_from);
 
   if (path.size() > 1) {
-    cout << path[0].min_time << endl;
+    cout << nodes[nodes.size() - 1].min_time << endl;
     cout << path.size() << endl;
-    while (!path.empty()) {
-      cout << path[path.size() - 1].display_as << ' ';
-      path.pop_back();
-    }
+    for (size_t i = path.size(); i != 0; --i)
+      cout << path[i - 1] + 1 << ' ';
     cout << endl;
   } else {
     cout << -1 << endl;
   }
-
   return 0;
 }
